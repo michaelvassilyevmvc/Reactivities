@@ -2,7 +2,6 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { Activity } from "../models/activity";
-import { store } from "../stores/store";
 
 const sleep = (delay: number) => {
   return new Promise((resolve) => {
@@ -18,7 +17,7 @@ axios.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    const { data, status, config } = error.response!;
+    const { data, status } = error.response!;
 
     switch (status) {
       case 400:
