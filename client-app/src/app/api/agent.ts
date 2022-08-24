@@ -22,7 +22,7 @@ axios.interceptors.request.use(config => {
 })
 
 axios.interceptors.response.use(
-  async (response) => {
+  async (response) => { 
     await sleep(1000);
     return response;
   },

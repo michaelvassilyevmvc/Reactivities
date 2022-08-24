@@ -5,42 +5,57 @@ using System.Threading;
 using Persistence;
 using FluentValidation;
 using Application.Core;
+using Application.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Activities
 {
-  public class Create
-  {
-    public class Command : IRequest<Result<Unit>>
+    public class Create
     {
-      public Activity Activity { get; set; }
-    }
-
-    public class Handler : IRequestHandler<Command, Result<Unit>>
-    {
-      private readonly DataContext _context;
-
-      public class CommandValidator : AbstractValidator<Command>
-      {
-        public CommandValidator()
+        public class Command : IRequest<Result<Unit>>
         {
-          RuleFor(x => x.Activity).SetValidator(new ActivityValidator());
+            public Activity Activity { get; set; }
         }
-      }
 
-      public Handler(DataContext context)
-      {
-        _context = context;
-      }
+        public class Handler : IRequestHandler<Command, Result<Unit>>
+        {
+            private readonly DataContext _context;
 
-      public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-      {
-        _context.Activities.Add(request.Activity);
-        var result = await _context.SaveChangesAsync() > 0;
+            public class CommandValidator : AbstractValidator<Command>
+            {
+                public CommandValidator()
+                {
+                    RuleFor(x => x.Activity).SetValidator(new ActivityValidator());
+                }
+            }
+            private readonly IUserAccessor _userAccessor;
 
-        if (!result) return Result<Unit>.Failure("Failed to create activity");
+            public Handler(DataContext context, IUserAccessor userAccessor)
+            {
+                _userAccessor = userAccessor;
+                _context = context;
+            }
 
-        return Result<Unit>.Success(Unit.Value);
-      }
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == _userAccessor.GetUsername());
+
+                var attendee = new ActivityAttendee
+                {
+                    AppUser = user,
+                    Activity = request.Activity,
+                    IsHost = true
+                };
+
+                request.Activity.Attendees.Add(attendee);
+
+                _context.Activities.Add(request.Activity);
+                var result = await _context.SaveChangesAsync() > 0;
+
+                if (!result) return Result<Unit>.Failure("Failed to create activity");
+
+                return Result<Unit>.Success(Unit.Value);
+            }
+        }
     }
-  }
 }
