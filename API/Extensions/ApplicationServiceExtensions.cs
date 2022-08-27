@@ -9,6 +9,7 @@ using Application.Activities;
 using Application.Core;
 using Infrastructure.Security;
 using Application.Interfaces;
+using Infrastructure.Photos;
 
 namespace API.Extensions
 {
@@ -28,12 +29,14 @@ namespace API.Extensions
             {
                 opt.AddPolicy("CorsPolicy", policy =>
           {
-                  policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
-              });
+              policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+          });
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
 
             return services;
         }
