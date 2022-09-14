@@ -1,7 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { history } from "../..";
 import agent from "../api/agent";
-import { Profile } from "../models/profile";
 import { User, UserFormValues } from "../models/user";
 import { store } from "./store";
 
@@ -67,5 +66,5 @@ export default class UserStore {
         if (this.user) this.user.displayName = name;
     }
 
-    
+
 }
