@@ -39,9 +39,10 @@
   "scripts": {
     "start": "semantic-ui-css-patch && react-scripts start",
     "build": "semantic-ui-css-patch && react-scripts build",
+    "postbuild":"mv build ../API/wwwroot",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-  },
+  }, 
   "eslintConfig": {
     "extends": [
       "react-app",
